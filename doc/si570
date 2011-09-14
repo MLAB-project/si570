@@ -1,0 +1,62 @@
+Kernel driver si570
+=====================
+
+Supported chips:
+  * Silicon Labs Si570/Si571
+    Prefix: 'si570'
+    Addresses scanned: None (see below)
+    Datasheets:
+        http://www.silabs.com/Support%20Documents/TechnicalDocs/si570.pdf
+  * Silicon Labs Si598/Si599
+    Prefix: 'si598'
+    Addresses scanned: None (see below)
+    Datasheets:
+	http://www.silabs.com/Support%20Documents/TechnicalDocs/si598-99.pdf
+
+Author: Guenter Roeck <guenter.roeck@ericsson.com>
+
+
+Description
+-----------
+
+The Si570/Si598 XO and Si571/Si599 VCXO provide a low-jitter clock at any
+frequency.
+
+The Si570/Si571 are user-programmable to any output frequency from 10 to 945 MHz
+and select frequencies to 1400 MHz with <1 ppb resolution.
+
+The Si598/Si599 are user programmable to any output frequency from 10 to 525 MHz
+with 28 parts per trillion (ppt) resolution.
+
+See the datasheets for more information.
+
+
+Sysfs entries
+-------------
+
+frequency	- Selected frequency
+reset		- Writing a value other than 0 resets the device
+
+
+General Remarks
+---------------
+
+The chips support all valid 7-bit I2C addresses. I2C addresses are assigned
+during the ordering process.
+
+This driver does not auto-detect devices. You will have to instantiate the
+devices explicitly. Please see Documentation/i2c/instantiating-devices for
+details.
+
+
+Platform data
+-------------
+
+The devices can be provided with platform data to select the factory default
+output frequency. If platform data is not specified, the driver will assume a
+default factory output frequency of 125 MHz for Si570/Si571 and 10 MHz for
+Si598/Si599.
+
+struct si570_platform_data {
+	unsigned long fout;	/* Factory default output frequency */
+};

@@ -1,0 +1,21 @@
+What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/frequency
+Date:		April 2011
+Kernel version:	2.6.40 ?
+Contact:	Guenter Roeck <guenter.roeck@ericsson.com>
+Description:
+		Read or write XO/VCXO frequency of the device in Hz.
+
+		Accepted values: 10 MHz to 1400 MHz for Si570 and Si571,
+		10 MHz to 525 MHz for Si598 and Si599.
+Users:
+		Userspace applications interested in knowing or changing the
+		device frequency.
+
+What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/reset
+Date:		April 2011
+Kernel Version: 2.6.40 ?
+Contact:	Guenter Roeck <guenter.roeck@ericsson.com>
+Description:	Writing a value other than 0 resets the device.
+		Reading always returns 0 and has no effect.
+Users:
+		Userspace applications interested in resetting the device.
