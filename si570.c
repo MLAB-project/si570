@@ -44,7 +44,7 @@
 #define N1_1_0_MASK		0xc0
 #define RFREQ_37_32_MASK	0x3f
 
-#define SI570_FOUT_FACTORY_DFLT	125000000LL
+#define SI570_FOUT_FACTORY_DFLT	10000000LL
 #define SI598_FOUT_FACTORY_DFLT	10000000LL
 
 #define SI570_MIN_FREQ		10000000L
@@ -314,6 +314,7 @@ static const struct i2c_device_id si570_id[] = {
 	{ "si571", 0 },
 	{ "si598", 1 },
 	{ "si599", 1 },
+	{ "clkgen01", 1 },
 	{ }
 };
 MODULE_DEVICE_TABLE(i2c, si570_id);
