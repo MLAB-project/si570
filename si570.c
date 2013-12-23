@@ -263,6 +263,7 @@ static ssize_t set_frequency(struct device *dev,
 	struct i2c_client *client = to_i2c_client(dev);
 	struct si570_data *data = i2c_get_clientdata(client);
 	unsigned long val;
+	unsigned long long int value;
 	int err;
 
 	err = strict_strtoul(buf, 10, &val);
@@ -273,7 +274,10 @@ static ssize_t set_frequency(struct device *dev,
 		return -EINVAL;
 
 	mutex_lock(&data->lock);
-	if (abs(val - data->frequency) * 10000LL / data->frequency < 35)
+	
+	value = abs(val - data->frequency) * 10000LL;
+	do_div(value, data->frequency);
+	if (value < 35)
 		err = si570_set_frequency_small(client, data, val);
 	else
 		err = si570_set_frequency(client, data, val);
