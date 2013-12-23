@@ -80,9 +80,10 @@ static int si570_get_defaults(struct i2c_client *client)
 	struct si570_data *data = i2c_get_clientdata(client);
 	int reg1, reg2, reg3, reg4, reg5, reg6;
 	u64 fdco;
+	unsigned long int rem;
+	unsigned long long int value;
 
-	i2c_smbus_write_byte_data(client, SI570_REG_CONTROL,
-				  SI570_CNTRL_RECALL);
+	i2c_smbus_write_byte_data(client, SI570_REG_CONTROL, SI570_CNTRL_RECALL);
 
 	reg1 = i2c_smbus_read_byte_data(client, SI570_REG_HS_N1);
 	if (reg1 < 0)
@@ -104,8 +105,8 @@ static int si570_get_defaults(struct i2c_client *client)
 		return reg6;
 
 	data->hs_div = ((reg1 & HS_DIV_MASK) >> HS_DIV_SHIFT) + HS_DIV_OFFSET;
-	data->n1 = ((reg1 & N1_6_2_MASK) << 2) + ((reg2 & N1_1_0_MASK) >> 6)
-	  + 1;
+	data->n1 = ((reg1 & N1_6_2_MASK) << 2) + ((reg2 & N1_1_0_MASK) >> 6) + 1;
+	
 	/* Handle invalid cases */
 	if (data->n1 > 1)
 		data->n1 &= ~1;
@@ -121,10 +122,18 @@ static int si570_get_defaults(struct i2c_client *client)
 	 * Acceptable per Silicon Labs Application Note AN334.
 	 */
 	fdco = data->fout * data->n1 * data->hs_div;
-	if (fdco >= (1LL << 36))
-		data->fxtal = (fdco << 24) / (data->rfreq >> 4);
+	if (fdco >= (1LL << 36)) 
+	{
+	    value = (fdco << 24);
+	    rem = do_div(value, (data->rfreq >> 4));
+	    data->fxtal = value; 
+	}
 	else
-		data->fxtal = (fdco << 28) / data->rfreq;
+	{ 
+	    value = (fdco << 28);
+	    rem = do_div(value, data->rfreq);
+	    data->fxtal = value;
+	}
 
 	data->frequency = data->fout;
 
@@ -181,12 +190,15 @@ static int si570_set_frequency(struct i2c_client *client,
 			       unsigned long frequency)
 {
 	int i, n1, hs_div;
-	u64 fdco, best_fdco = ULLONG_MAX;
+	u64 fdco, value, best_fdco = ULLONG_MAX;
 
 	for (i = 0; i < ARRAY_SIZE(si570_hs_div_values); i++) {
 		hs_div = si570_hs_div_values[i];
 		/* Calculate lowest possible value for n1 */
-		n1 = FDCO_MIN / (u64)hs_div / (u64)frequency;
+		value = (u64)FDCO_MIN;
+		 do_div(value, hs_div);
+		 do_div(value, frequency);
+		n1 = value;
 		if (!n1 || (n1 & 1))
 			n1++;
 		while (n1 <= 128) {
@@ -197,7 +209,9 @@ static int si570_set_frequency(struct i2c_client *client,
 				data->n1 = n1;
 				data->hs_div = hs_div;
 				data->frequency = frequency;
-				data->rfreq = (fdco << 28) / data->fxtal;
+				value = (fdco << 28);
+				do_div(value, data->fxtal); 
+				data->rfreq = value;
 				best_fdco = fdco;
 			}
 			n1 += (n1 == 1 ? 1 : 2);
