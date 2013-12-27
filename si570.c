@@ -168,8 +168,12 @@ static int si570_set_frequency_small(struct i2c_client *client,
 				     struct si570_data *data,
 				     unsigned long frequency)
 {
-	data->rfreq = DIV_ROUND_CLOSEST(data->rfreq * frequency,
-					data->frequency);
+	//data->rfreq = DIV_ROUND_CLOSEST(data->rfreq * frequency,
+	//				data->frequency);
+
+	data->rfreq = data->rfreq * frequency + data->frequency / 2;
+	do_div(data->rfreq, data->frequency);
+
 	data->frequency = frequency;
 	i2c_smbus_write_byte_data(client, SI570_REG_CONTROL,
 				  SI570_CNTRL_FREEZE_M);
