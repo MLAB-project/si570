@@ -410,8 +410,8 @@ static void __exit si570_exit(void)
 	i2c_del_driver(&si570_driver);
 }
 
-MODULE_AUTHOR("Guenter Roeck <guenter.roeck@ericsson.com>");
-MODULE_DESCRIPTION("Si570 driver");
+MODULE_AUTHOR("Guenter Roeck <guenter.roeck@ericsson.com>, Jakub Kákona <kaklik@mlab.cz>");
+MODULE_DESCRIPTION("Si570 I2C driver");
 MODULE_LICENSE("GPL");
 
 module_init(si570_init);
